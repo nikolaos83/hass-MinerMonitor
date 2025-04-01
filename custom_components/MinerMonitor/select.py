@@ -63,7 +63,7 @@ async def async_setup_entry(
         )
 
 
-class MinerMonitorPowerModeSwitch(CoordinatorEntity[MinerCoordinator], SelectEntity):
+class MinerPowerModeSwitch(CoordinatorEntity[MinerCoordinator], SelectEntity):
     """A selector for the miner's miner mode."""
 
     def __init__(

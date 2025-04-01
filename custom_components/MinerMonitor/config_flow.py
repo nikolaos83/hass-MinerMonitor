@@ -71,7 +71,7 @@ async def validate_ip_input(
     return {}, miner
 
 
-class MinerMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class MinerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Miner."""
 
     VERSION = 1
