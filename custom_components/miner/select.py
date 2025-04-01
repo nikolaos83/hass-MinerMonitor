@@ -29,8 +29,8 @@ from homeassistant.helpers import entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.miner import DOMAIN
-from custom_components.miner import MinerCoordinator
+from .const import DOMAIN
+from .coordinator import MinerCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,8 +93,10 @@ class MinerPowerModeSwitch(CoordinatorEntity[MinerCoordinator], SelectEntity):
     @property
     def current_option(self) -> str | None:
         """The current option selected with the select."""
-        config: pyasic.MinerConfig = self.coordinator.data["config"]
-        return str(config.mining_mode.mode).title()
+        config: pyasic.MinerConfig = self.coordinator.data.get("config")
+        if config and config.mining_mode:
+            return str(config.mining_mode.mode).title()
+        return None
 
     @property
     def options(self) -> list[str]:

@@ -19,17 +19,16 @@ except ImportError:
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.debounce import Debouncer
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import CONF_IP
-from .const import CONF_MIN_POWER
-from .const import CONF_MAX_POWER
-from .const import CONF_RPC_PASSWORD
-from .const import CONF_SSH_PASSWORD
-from .const import CONF_SSH_USERNAME
-from .const import CONF_WEB_PASSWORD
-from .const import CONF_WEB_USERNAME
+from .const import (
+    CONF_IP,
+    CONF_RPC_PASSWORD,
+    CONF_SSH_PASSWORD,
+    CONF_SSH_USERNAME,
+    CONF_WEB_PASSWORD,
+    CONF_WEB_USERNAME,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,10 +51,7 @@ class MinerCoordinator(DataUpdateCoordinator):
             name=entry.title,
             update_interval=timedelta(seconds=10),
             request_refresh_debouncer=Debouncer(
-                hass,
-                _LOGGER,
-                cooldown=REQUEST_REFRESH_DEFAULT_COOLDOWN,
-                immediate=True,
+                hass, _LOGGER, cooldown=REQUEST_REFRESH_DEFAULT_COOLDOWN, immediate=True
             ),
         )
 
@@ -95,7 +91,6 @@ class MinerCoordinator(DataUpdateCoordinator):
         _LOGGER.debug(f"Found miner: {self.miner}")
 
         try:
-
             miner_data = await self.miner.get_data(
                 include=[
                     pyasic.DataOptions.HOSTNAME,
@@ -108,7 +103,10 @@ class MinerCoordinator(DataUpdateCoordinator):
                     pyasic.DataOptions.WATTAGE,
                     pyasic.DataOptions.WATTAGE_LIMIT,
                     pyasic.DataOptions.FANS,
-                    pyasic.DataOptions.CONFIG,
+                    pyasic.DataOptions.UPTIME,
+                    pyasic.DataOptions.ENVIRONMENT_TEMP,
+                    pyasic.DataOptions.ERRORS,
+                    pyasic.DataOptions.FAULT_LIGHT,
                 ]
             )
         except Exception as err:
@@ -119,13 +117,19 @@ class MinerCoordinator(DataUpdateCoordinator):
 
         try:
             hashrate = round(float(miner_data.hashrate), 2)
-        except TypeError:
+        except (TypeError, ValueError):
             hashrate = None
 
         try:
             expected_hashrate = round(float(miner_data.expected_hashrate), 2)
-        except TypeError:
+        except (TypeError, ValueError):
             expected_hashrate = None
+
+        # Process errors into a string for sensor display
+        if miner_data.errors:
+            errors_str = "; ".join(getattr(e, "error_message", str(e)) for e in miner_data.errors) or "No errors"
+        else:
+            errors_str = ""
 
         data = {
             "hostname": miner_data.hostname,
@@ -142,6 +146,11 @@ class MinerCoordinator(DataUpdateCoordinator):
                 "power_limit": miner_data.wattage_limit,
                 "miner_consumption": miner_data.wattage,
                 "efficiency": miner_data.efficiency,
+                "percent_expected_hashrate": miner_data.percent_expected_hashrate,
+                "uptime": miner_data.uptime,
+                "env_temp": miner_data.env_temp,
+                "errors": errors_str,
+                "fault_light": miner_data.fault_light,
             },
             "board_sensors": {
                 board.slot: {
@@ -149,15 +158,11 @@ class MinerCoordinator(DataUpdateCoordinator):
                     "chip_temperature": board.chip_temp,
                     "board_hashrate": round(float(board.hashrate or 0), 2),
                 }
-                for board in miner_data.hashboards
+                for board in miner_data.hashboards if board.hashrate is not None
             },
             "fan_sensors": {
                 idx: {"fan_speed": fan.speed} for idx, fan in enumerate(miner_data.fans)
             },
             "config": miner_data.config,
-            "power_limit_range": {
-                "min": self.config_entry.data.get(CONF_MIN_POWER, 100),
-                "max": self.config_entry.data.get(CONF_MAX_POWER, 10000),
-            },
         }
         return data

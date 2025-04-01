@@ -13,38 +13,19 @@ from homeassistant.const import REVOLUTIONS_PER_MINUTE
 from homeassistant.const import UnitOfPower
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers import entity
 
-from .const import DOMAIN
-from .const import JOULES_PER_TERA_HASH
-from .const import TERA_HASH_PER_SECOND
+from .const import DOMAIN, JOULES_PER_TERA_HASH, TERA_HASH_PER_SECOND
 from .coordinator import MinerCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-
 ENTITY_DESCRIPTION_KEY_MAP: dict[str, SensorEntityDescription] = {
     "temperature": SensorEntityDescription(
         key="Temperature",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    "board_temperature": SensorEntityDescription(
-        key="Board Temperature",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    "chip_temperature": SensorEntityDescription(
-        key="Chip Temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -56,18 +37,14 @@ ENTITY_DESCRIPTION_KEY_MAP: dict[str, SensorEntityDescription] = {
         native_unit_of_measurement=TERA_HASH_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:speedometer",
     ),
     "ideal_hashrate": SensorEntityDescription(
         key="Ideal Hashrate",
         native_unit_of_measurement=TERA_HASH_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    "board_hashrate": SensorEntityDescription(
-        key="Board Hashrate",
-        native_unit_of_measurement=TERA_HASH_PER_SECOND,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:speedometer",
     ),
     "power_limit": SensorEntityDescription(
         key="Power Limit",
@@ -75,6 +52,7 @@ ENTITY_DESCRIPTION_KEY_MAP: dict[str, SensorEntityDescription] = {
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:flash",
     ),
     "miner_consumption": SensorEntityDescription(
         key="Miner Consumption",
@@ -82,18 +60,80 @@ ENTITY_DESCRIPTION_KEY_MAP: dict[str, SensorEntityDescription] = {
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:flash-outline",
     ),
     "efficiency": SensorEntityDescription(
         key="Efficiency",
         native_unit_of_measurement=JOULES_PER_TERA_HASH,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:oil",
+    ),
+    "board_temperature": SensorEntityDescription(
+        key="Board Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:thermometer-lines",
+    ),
+    "chip_temperature": SensorEntityDescription(
+        key="Chip Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:thermometer-high",
+    ),
+    "board_hashrate": SensorEntityDescription(
+        key="Board Hashrate",
+        native_unit_of_measurement=TERA_HASH_PER_SECOND,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:speedometer",
     ),
     "fan_speed": SensorEntityDescription(
         key="Fan Speed",
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:fan",
+    ),
+    "percent_expected_hashrate": SensorEntityDescription(
+        key="Percent Expected Hashrate",
+        native_unit_of_measurement="%",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:percent",
+    ),
+    "uptime": SensorEntityDescription(
+        key="Uptime",
+        native_unit_of_measurement="s",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:timer-outline",
+    ),
+    "env_temp": SensorEntityDescription(
+        key="Environment Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:weather-sunny",
+    ),
+    "errors": SensorEntityDescription(
+        key="Errors",
+        state_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:alert-circle",
+    ),
+    "fault_light": SensorEntityDescription(
+        key="Fault Light",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:alert",
     ),
 }
 
@@ -112,18 +152,16 @@ async def async_setup_entry(
             sensor, SensorEntityDescription(key="base_sensor")
         )
         return MinerSensor(
-            coordinator=coordinator,
-            sensor=sensor,
-            entity_description=description,
+            coordinator=coordinator, sensor=sensor, entity_description=description
         )
 
-    def _create_board_entity(board_num: int, sensor: str) -> MinerBoardSensor:
-        """Create a board sensor entity."""
+    def _create_board_entity(display_idx: int, board_num: int, sensor: str) -> MinerBoardSensor:
         description = ENTITY_DESCRIPTION_KEY_MAP.get(
             sensor, SensorEntityDescription(key="base_sensor")
         )
         return MinerBoardSensor(
             coordinator=coordinator,
+            display_idx=display_idx,
             board_num=board_num,
             sensor=sensor,
             entity_description=description,
@@ -146,9 +184,13 @@ async def async_setup_entry(
     sensors = []
     for s in coordinator.data["miner_sensors"]:
         sensors.append(_create_miner_entity(s))
-    for board in range(coordinator.miner.expected_hashboards):
-        for s in ["board_temperature", "chip_temperature", "board_hashrate"]:
-            sensors.append(_create_board_entity(board, s))
+    sorted_board_nums = sorted(coordinator.data["board_sensors"].keys())
+    for display_idx, board_num in enumerate(sorted_board_nums):
+        for sensor_type in ["board_temperature", "chip_temperature", "board_hashrate"]:
+            sensors.append(
+                _create_board_entity(display_idx, board_num, sensor_type)
+            )
+
     for fan in range(coordinator.miner.expected_fans):
         for s in ["fan_speed"]:
             sensors.append(_create_fan_entity(fan, s))
@@ -208,21 +250,18 @@ class MinerSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
 
 
 class MinerBoardSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
-    """Defines a Miner Board Sensor."""
-
-    entity_description: SensorEntityDescription
-
     def __init__(
         self,
         coordinator: MinerCoordinator,
+        display_idx: int,
         board_num: int,
         sensor: str,
         entity_description: SensorEntityDescription,
     ) -> None:
-        """Initialize the sensor."""
         super().__init__(coordinator=coordinator)
-        self._attr_unique_id = f"{self.coordinator.data['mac']}-{board_num}-{sensor}"
-        self._board_num = board_num
+        self._attr_unique_id = f"{self.coordinator.data['mac']}-board-{board_num}-{sensor}"
+        self._display_idx = display_idx  # Reindexed Home Assistant-friendly number
+        self._board_num = board_num      # Actual hardware board number
         self._sensor = sensor
         self.entity_description = entity_description
 
@@ -237,7 +276,7 @@ class MinerBoardSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
     @property
     def name(self) -> str | None:
         """Return name of the entity."""
-        return f"{self.coordinator.config_entry.title} Board #{self._board_num} {self.entity_description.key}"
+        return f"{self.coordinator.config_entry.title} Board #{self._display_idx} {self.entity_description.key}"
 
     @property
     def device_info(self) -> entity.DeviceInfo:

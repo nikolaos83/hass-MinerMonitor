@@ -1,15 +1,13 @@
 {
-  "domain": "miner",
-  "name": "Miner",
-  "codeowners": ["@Schnitzel"],
+  "domain": "miner_monitor",
+  "name": "Miner Monitor",
+  "codeowners": ["@nikolaos83", "@Schnitzel"],
   "config_flow": true,
   "dependencies": ["network"],
-  "documentation": "https://github.com/Schnitzel/hass-miner",
-  "homekit": {},
+  "documentation": "https://github.com/nikolaos83/hass-MinerMonitor",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Schnitzel/hass-miner/issues",
+  "issue_tracker": "https://github.com/nikolaos83/hass-MinerMonitor/issues",
   "requirements": [],
-  "ssdp": [],
-  "version": "1.2.2",
-  "zeroconf": []
+  "version": "2.0.0",
+  "icons": ["mdi:pickaxe"]
 }
