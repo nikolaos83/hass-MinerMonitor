@@ -1,6 +1,6 @@
 """Constants for the Miner integration."""
 
-DOMAIN = "miner"
+DOMAIN = "MinerMonitor"
 
 CONF_IP = "ip"
 CONF_TITLE = "title"
@@ -17,6 +17,5 @@ SERVICE_RESTART_BACKEND = "restart_backend"
 
 TERA_HASH_PER_SECOND = "TH/s"
 JOULES_PER_TERA_HASH = "J/TH"
-
 
 PYASIC_VERSION = "0.72.1"
