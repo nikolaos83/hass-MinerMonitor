@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hass-miner"
+name = "hass-MinerMonitor"
 version = "1.1.19"
 description = ""
 authors = ["Michael Schmid <michael@amazee.com>"]
