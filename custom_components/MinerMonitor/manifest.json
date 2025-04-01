@@ -1,5 +1,5 @@
 {
-  "domain": "miner_monitor",
+  "domain": "MinerMonitor",
   "name": "Miner Monitor",
   "codeowners": ["@nikolaos83", "@Schnitzel"],
   "config_flow": true,
