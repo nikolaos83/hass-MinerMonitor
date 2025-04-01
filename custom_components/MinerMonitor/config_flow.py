@@ -55,7 +55,7 @@ async def _async_has_devices(hass: HomeAssistant) -> bool:
     return False
 
 
-register_discovery_flow(DOMAIN, "miner", _async_has_devices)
+register_discovery_flow(DOMAIN, "MinerMonitor", _async_has_devices)
 
 
 async def validate_ip_input(
@@ -71,7 +71,7 @@ async def validate_ip_input(
     return {}, miner
 
 
-class MinerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class MinerMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Miner."""
 
     VERSION = 1

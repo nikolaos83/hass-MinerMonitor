@@ -59,4 +59,5 @@ Miner control and data is handled using [@UpstreamData](https://github.com/Upstr
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40Schnitzel-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/Schnitzel/hass-miner.svg?style=for-the-badge
 [releases]: https://github.com/Schnitzel/hass-miner/releases
-[user_profile]: https://github.com/Schnitzel
+[user1_profile]: https://github.com/Schnitzel
+[user2_profile]: https://github.com/nikolaos83

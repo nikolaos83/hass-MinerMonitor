@@ -1,9 +1,9 @@
 reboot:
   target:
     device:
-      integration: miner
+      integration: MinerMonitor
 
 restart_backend:
   target:
     device:
-      integration: miner
+      integration: MinerMonitor

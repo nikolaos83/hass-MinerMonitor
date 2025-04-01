@@ -197,7 +197,7 @@ async def async_setup_entry(
     async_add_entities(sensors)
 
 
-class MinerSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
+class MinerMonitorSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
     """Defines a Miner Sensor."""
 
     entity_description: SensorEntityDescription
@@ -249,7 +249,7 @@ class MinerSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
         return self.coordinator.available
 
 
-class MinerBoardSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
+class MinerMonitorBoardSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
     def __init__(
         self,
         coordinator: MinerCoordinator,
@@ -300,7 +300,7 @@ class MinerBoardSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
         return self.coordinator.available
 
 
-class MinerFanSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
+class MinerMonitorFanSensor(CoordinatorEntity[MinerCoordinator], SensorEntity):
     """Defines a Miner Fan Sensor."""
 
     entity_description: SensorEntityDescription

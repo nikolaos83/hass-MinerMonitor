@@ -42,7 +42,7 @@ async def async_setup_entry(
         )
 
 
-class MinerActiveSwitch(CoordinatorEntity[MinerCoordinator], SwitchEntity):
+class MinerMonitorActiveSwitch(CoordinatorEntity[MinerCoordinator], SwitchEntity):
     """Defines a Miner Switch to pause and unpause the miner."""
 
     def __init__(
